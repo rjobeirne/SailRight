@@ -267,7 +267,6 @@ public class MainActivity extends AppCompatActivity {
         mNextMarkTextView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (flagFinished) {
                     switch (v.getId()) {
                         case R.id.next_mark_name:
                             ;
@@ -276,7 +275,6 @@ public class MainActivity extends AppCompatActivity {
                         default:
                             break;
                     }
-                }
                 return true;
             }
         });
