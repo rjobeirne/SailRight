@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true">
+    android:keepScreenOn="true"
     tools:context=".StartActivity">
 
     <TextView
@@ -336,7 +336,28 @@
         android:textSize="24sp"
         app:layout_constraintTop_toBottomOf="@id/accuracy_title"
         app:layout_constraintBottom_toBottomOf="@+id/speed_text"
-        app:layout_constraintEnd_toStartOf="@+id/bearing_text"
+        app:layout_constraintEnd_toStartOf="@+id/ping_a_mark"
         app:layout_constraintStart_toEndOf="@+id/heading_text" />
+
+    <Button
+        android:id="@+id/ping_a_mark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ping A"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toEndOf="@id/accuracy_title"
+        app:layout_constraintEnd_toStartOf="@id/bearing_text"
+        app:layout_constraintTop_toTopOf="@id/accuracy_title" />
+
+    <TextView
+        android:id="@+id/a_mark_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="error"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="@id/ping_a_mark"
+        app:layout_constraintEnd_toEndOf="@id/ping_a_mark"
+        app:layout_constraintTop_toBottomOf="@id/ping_a_mark" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
