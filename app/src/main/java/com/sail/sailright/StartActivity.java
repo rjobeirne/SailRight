@@ -13,6 +13,7 @@ import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -27,8 +28,16 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class StartActivity extends AppCompatActivity {
@@ -154,7 +163,11 @@ public class StartActivity extends AppCompatActivity {
         mPingButton.setText(ping);
         mPingButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                pingAMark(v);
+                try {
+                    pingAMark(v);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -249,20 +262,30 @@ public class StartActivity extends AppCompatActivity {
      *  Ping the A Mark when button is pressed
      * @param view
      */
-    public void pingAMark(View view) {
+    public void pingAMark(View view) throws IOException {
         aMarkPing = location;
-        if (aMarkPing!=null){
+        if (aMarkPing!=null) {
 
-        // Recreate the start line using the pinged A Mark
-        theLine = new StartLine(aMarkPing, hMark, tower, firstMark, deltaBearingSwitch);
-        double distToA = location.distanceTo(aMark);
-        String displayDistToA = new DecimalFormat("###0").format(distToA);
-        int angleToA = (int) location.bearingTo(aMark);
-        int bearingFromA = theCalculator.getCorrectedBearingToMark(180 - angleToA);
-        mAMarkError.setVisibility(View.VISIBLE);
-        mAMarkError.setText(displayDistToA + "m @ " + bearingFromA + "\u00B0");
+            // Recreate the start line using the pinged A Mark
+            theLine = new StartLine(aMarkPing, hMark, tower, firstMark, deltaBearingSwitch);
+            double distToA = location.distanceTo(aMark);
+            String displayDistToA = new DecimalFormat("###0").format(distToA);
+            int angleToA = (int) location.bearingTo(aMark);
+            int bearingFromA = theCalculator.getCorrectedBearingToMark(180 - angleToA);
+            mAMarkError.setVisibility(View.VISIBLE);
+            mAMarkError.setText(displayDistToA + "m @ " + bearingFromA + "\u00B0");
+
+            Date c = Calendar.getInstance().getTime();
+            SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy-HH:mm", Locale.getDefault());
+            String dateStamp = df.format(c);
+            String logData = String.valueOf(dateStamp + ":: " +
+                    aMarkPing.getLatitude() + ", " + aMarkPing.getLongitude());
+            File aLog = new File(Environment.getExternalStorageDirectory() + "/SailRight/AMarkLog");
+                FileOutputStream fileInput = new FileOutputStream(aLog, true);
+                PrintStream printStream = new PrintStream(fileInput);
+                printStream.print(logData + "\n");
+                fileInput.close();
         }
-
     }
 
     /**
