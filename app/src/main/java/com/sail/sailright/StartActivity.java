@@ -145,6 +145,7 @@ public class StartActivity extends AppCompatActivity {
                 if (timerStarted) {
                     stop_clock();
                 }
+                aMarkPing = null;
                 finish();
             }
         });
