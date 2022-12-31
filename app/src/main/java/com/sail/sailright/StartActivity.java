@@ -279,8 +279,8 @@ public class StartActivity extends AppCompatActivity {
             Date c = Calendar.getInstance().getTime();
             SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy-HH:mm", Locale.getDefault());
             String dateStamp = df.format(c);
-            String logData = String.valueOf(dateStamp + ":: " +
-                    aMarkPing.getLatitude() + ", " + aMarkPing.getLongitude());
+            String logData = String.valueOf(dateStamp + "; " +
+                    aMarkPing.getLatitude() + "; " + aMarkPing.getLongitude());
             File aLog = new File(Environment.getExternalStorageDirectory() + "/SailRight/AMarkLog");
                 FileOutputStream fileInput = new FileOutputStream(aLog, true);
                 PrintStream printStream = new PrintStream(fileInput);
