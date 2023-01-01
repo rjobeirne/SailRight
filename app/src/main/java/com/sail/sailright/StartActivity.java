@@ -276,16 +276,30 @@ public class StartActivity extends AppCompatActivity {
             mAMarkError.setVisibility(View.VISIBLE);
             mAMarkError.setText(displayDistToA + "m @ " + bearingFromA + "\u00B0");
 
+            File dir = new File(Environment.getExternalStorageDirectory() + "/SailRight/");
+            File aLog = new File(dir, "AMarkLog");
+
+            // Add location stored in Marks the first time a ping log is used
+            if (!aLog.exists()) {
+                String fileData =  String.valueOf("File Data Location; " +
+                        aMark.getLatitude() + "; " + aMark.getLongitude());
+                FileOutputStream fileInput = new FileOutputStream(aLog, true);
+                PrintStream printStream = new PrintStream(fileInput);
+                printStream.print(fileData + "\n");
+            }
+
+            // Create a date stamp
             Date c = Calendar.getInstance().getTime();
             SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy-HH:mm", Locale.getDefault());
             String dateStamp = df.format(c);
+
+            // Print location to lof file
             String logData = String.valueOf(dateStamp + "; " +
                     aMarkPing.getLatitude() + "; " + aMarkPing.getLongitude());
-            File aLog = new File(Environment.getExternalStorageDirectory() + "/SailRight/AMarkLog");
-                FileOutputStream fileInput = new FileOutputStream(aLog, true);
-                PrintStream printStream = new PrintStream(fileInput);
-                printStream.print(logData + "\n");
-                fileInput.close();
+            FileOutputStream fileInput = new FileOutputStream(aLog, true);
+            PrintStream printStream = new PrintStream(fileInput);
+            printStream.print(logData + "\n");
+            fileInput.close();
         }
     }
 
