@@ -294,8 +294,8 @@ public class StartActivity extends AppCompatActivity {
             String dateStamp = df.format(c);
 
             // Print location to lof file
-            String logData = String.valueOf(dateStamp + "; " +
-                    aMarkPing.getLatitude() + "; " + aMarkPing.getLongitude());
+            String logData = String.valueOf(dateStamp + "; " + aMarkPing.getLatitude() +
+                    "; " + aMarkPing.getLongitude() + "; " + displayDistToA);
             FileOutputStream fileInput = new FileOutputStream(aLog, true);
             PrintStream printStream = new PrintStream(fileInput);
             printStream.print(logData + "\n");
