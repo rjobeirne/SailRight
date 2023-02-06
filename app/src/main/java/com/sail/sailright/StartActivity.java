@@ -265,6 +265,7 @@ public class StartActivity extends AppCompatActivity {
      */
     public void pingAMark(View view) throws IOException {
         aMarkPing = location;
+        aMark = aMarkPing;
         if (aMarkPing!=null) {
 
             // Recreate the start line using the pinged A Mark
