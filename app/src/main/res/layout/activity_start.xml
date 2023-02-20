@@ -68,18 +68,18 @@
         android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
         android:gravity="end"
         android:text="@string/heading"
         android:textColor="@color/titles"
         android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/start_course_name" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
 
     <TextView
         android:id="@+id/heading_text"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:gravity="center"
         android:text="@string/heading"
         android:textColor="@color/normal_text"
@@ -92,6 +92,7 @@
         android:id="@+id/bearing_text"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:gravity="center"
         android:text="@string/bearing"
         android:textColor="@color/normal_text"
@@ -106,13 +107,12 @@
         android:id="@+id/bearing_title"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:gravity="start"
         android:text="@string/bearing"
         android:textColor="@color/titles"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/start_next_mark_name"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView4" />
 
     <TextView
         android:id="@+id/speed_title"
@@ -359,5 +359,21 @@
         app:layout_constraintStart_toStartOf="@id/ping_a_mark"
         app:layout_constraintEnd_toEndOf="@id/ping_a_mark"
         app:layout_constraintTop_toBottomOf="@id/ping_a_mark" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:layout_constraintEnd_toStartOf="@+id/heading_text"
+        app:layout_constraintTop_toBottomOf="@+id/start_course_name"
+        app:srcCompat="@drawable/boat" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:layout_constraintStart_toEndOf="@+id/bearing_text"
+        app:layout_constraintTop_toBottomOf="@+id/start_next_mark_name"
+        app:srcCompat="@drawable/buoys" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
