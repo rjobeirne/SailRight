@@ -13,6 +13,7 @@ import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -27,8 +28,16 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class StartActivity extends AppCompatActivity {
@@ -48,6 +57,7 @@ public class StartActivity extends AppCompatActivity {
     TextView mBearingTextView, mTimeVarianceTextView, mEarlyLateTextView;
     TextView mTimeToMarkTextView, mAccuracyTextView;
     TextView mClockTextView;
+    TextView mAMarkError;
     private TextClock mClock;
 
     // Define variables
@@ -72,6 +82,10 @@ public class StartActivity extends AppCompatActivity {
     CountDownTimer startClock;
     double secsLeft;
     String clockControl = "Go";
+    String ping = "Ping A Mark";
+    Location location;
+    Location aMarkPing = null;
+    Location aMark, hMark, tower, firstMark;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +112,8 @@ public class StartActivity extends AppCompatActivity {
         mAccuracyTextView = findViewById(R.id.accuracy_text);
         mClockTextView = findViewById(R.id.time_to_start);
         mClock = findViewById(R.id.time_text);
+        mAMarkError = findViewById(R.id.a_mark_error);
+        mAMarkError.setVisibility(View.GONE);
 
         //Create the ArrayList object here, for use in all the MainActivity
         theMarks = new Marks();
@@ -113,10 +129,10 @@ public class StartActivity extends AppCompatActivity {
         String a = "A"; // Start line data
         String h = "H"; // Start Line Data
         String twr = "Tower RMYS";
-        Location aMark = theMarks.getNextMark(a);
-        Location hMark = theMarks.getNextMark(h);
-        Location tower = theMarks.getNextMark(twr);
-        Location firstMark = theMarks.getNextMark(firstMarkName);
+        aMark = theMarks.getNextMark(a);
+        hMark = theMarks.getNextMark(h);
+        tower = theMarks.getNextMark(twr);
+        firstMark = theMarks.getNextMark(firstMarkName);
 
         // Create theCalculator object for processing data readings
         theCalculator = new Calculator();
@@ -129,6 +145,7 @@ public class StartActivity extends AppCompatActivity {
                 if (timerStarted) {
                     stop_clock();
                 }
+                aMarkPing = null;
                 finish();
             }
         });
@@ -139,6 +156,19 @@ public class StartActivity extends AppCompatActivity {
         mButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 start_clock(v);
+            }
+        });
+
+        // Ping the A Mark
+        Button mPingButton = findViewById(R.id.ping_a_mark);
+        mPingButton.setText(ping);
+        mPingButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                try {
+                    pingAMark(v);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -155,7 +185,7 @@ public class StartActivity extends AppCompatActivity {
                 super.onLocationResult(locationResult);
 
                 // save the location
-                Location location = locationResult.getLastLocation();
+                location = locationResult.getLastLocation();
                 updateLocationData(location);
             }
         };
@@ -230,6 +260,51 @@ public class StartActivity extends AppCompatActivity {
     }
 
     /**
+     *  Ping the A Mark when button is pressed
+     * @param view
+     */
+    public void pingAMark(View view) throws IOException {
+        aMarkPing = location;
+        if (aMarkPing!=null) {
+
+            // Recreate the start line using the pinged A Mark
+            theLine = new StartLine(aMarkPing, hMark, tower, firstMark, deltaBearingSwitch);
+            double distToA = location.distanceTo(aMark);
+            String displayDistToA = new DecimalFormat("###0").format(distToA);
+            int angleToA = (int) location.bearingTo(aMark);
+            int bearingFromA = theCalculator.getCorrectedBearingToMark(180 - angleToA);
+            mAMarkError.setVisibility(View.VISIBLE);
+            mAMarkError.setText(displayDistToA + "m @ " + bearingFromA + "\u00B0");
+
+            File dir = new File(Environment.getExternalStorageDirectory() + "/SailRight/");
+            File aLog = new File(dir, "AMarkLog");
+
+            // Add location stored in Marks the first time a ping log is used
+            if (!aLog.exists()) {
+                String fileData =  String.valueOf("File Data Location; " +
+                        aMark.getLatitude() + "; " + aMark.getLongitude());
+                FileOutputStream fileInput = new FileOutputStream(aLog, true);
+                PrintStream printStream = new PrintStream(fileInput);
+                printStream.print(fileData + "\n");
+            }
+
+            // Create a date stamp
+            Date c = Calendar.getInstance().getTime();
+            SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy-HH:mm", Locale.getDefault());
+            String dateStamp = df.format(c);
+
+            // Print location to lof file
+            String logData = String.valueOf(dateStamp + "; " + aMarkPing.getLatitude() +
+                    "; " + aMarkPing.getLongitude() + "; " + displayDistToA);
+            FileOutputStream fileInput = new FileOutputStream(aLog, true);
+            PrintStream printStream = new PrintStream(fileInput);
+            printStream.print(logData + "\n");
+            fileInput.close();
+        }
+        aMark = aMarkPing;
+    }
+
+    /**
      * Calculates all the navigational data
      */
     private void updateLocationData(Location mCurrentLocation) {
@@ -246,6 +321,9 @@ public class StartActivity extends AppCompatActivity {
                 // Set the next mark to either A or H
                 startNextMarkTextView.setText("Start - " + startMark + " Mark");
                 destMark = theMarks.getNextMark(startMark);
+                if (aMarkPing!=null && startMark == "A") {
+                    destMark = aMarkPing;
+                }
             }
 
         // Process gps data for display on UI
