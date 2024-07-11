@@ -19,6 +19,7 @@ package com.sail.sailright;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
@@ -26,6 +27,7 @@ import android.graphics.Typeface;
 import android.location.Location;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -92,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
     private TextClock mClock;
     private TextView mKeepTextView;
     private TextView mCourseListTextView;
+    private TextView mBatteryLevel;
 
     // Define the 'Marks' and 'Courses' ArraysBoat
     Marks theMarks = null;
@@ -144,6 +147,8 @@ public class MainActivity extends AppCompatActivity {
     int directionFactor;
     Location aMark, hMark, tower, lastMark, finishPoint;
     Double distToFinish;
+
+    int batteryLevel;
 
     final String a = "A"; // Finish line data
     final String h = "H"; // Finish Line Data
@@ -212,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
         mClock = findViewById(R.id.time_text);
         mKeepTextView = findViewById(R.id.keep_title);
         mCourseListTextView = findViewById(R.id.course_details);
+        mBatteryLevel = findViewById(R.id.battery_level);
 
         // Settings and preferences
         // Send Toast message on short click
@@ -691,6 +697,9 @@ public class MainActivity extends AppCompatActivity {
         mClock.setFormat24Hour("HH:mm:ss");
         mTimeToMarkTextView.setText(ttmDisplay);
         mAccuracyTextView.setText(accuracy);
+
+        batteryLevel = getBatteryPercentage();
+        mBatteryLevel.setText(batteryLevel + "%");
     }
 
     public void playSounds(String sound) {
@@ -824,6 +833,28 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    public int getBatteryPercentage() {
+
+        if (Build.VERSION.SDK_INT >= 21) {
+
+             BatteryManager bm = (BatteryManager) getSystemService(BATTERY_SERVICE);
+             return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+
+        } else {
+
+             IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+             Intent batteryStatus = registerReceiver(null, iFilter);
+
+             int level = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) : -1;
+             int scale = batteryStatus != null ? batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1) : -1;
+
+             double batteryPct = level / (double) scale;
+
+             return (int) (batteryPct * 100);
+       }
+    }
+
 
     private void copyFile(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[1024];
