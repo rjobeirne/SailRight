@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mKeepTextView;
     private TextView mCourseListTextView;
     private TextView mBatteryLevel;
+    private TextView mBatteryWarning;
 
     // Define the 'Marks' and 'Courses' ArraysBoat
     Marks theMarks = null;
@@ -218,6 +219,7 @@ public class MainActivity extends AppCompatActivity {
         mKeepTextView = findViewById(R.id.keep_title);
         mCourseListTextView = findViewById(R.id.course_details);
         mBatteryLevel = findViewById(R.id.battery_level);
+        mBatteryWarning = findViewById(R.id.battery_warning);
 
         // Settings and preferences
         // Send Toast message on short click
@@ -700,6 +702,13 @@ public class MainActivity extends AppCompatActivity {
 
         batteryLevel = getBatteryPercentage();
         mBatteryLevel.setText(batteryLevel + "%");
+
+        if (batteryLevel > 20) {
+            mBatteryWarning.setVisibility(View.GONE);
+            } else {
+            // Display warning
+            mBatteryWarning.setVisibility(View.VISIBLE);
+        }
     }
 
     public void playSounds(String sound) {
