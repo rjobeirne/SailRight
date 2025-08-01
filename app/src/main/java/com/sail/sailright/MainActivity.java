@@ -20,6 +20,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
@@ -105,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
     FinishLine theFinish = null;
     StartActivity theStart = null;
     Calculator theCalculator = null;
+    PlugInControlReceiver chargeReceiver;
 
     // Define parameters of next mark
     double mSpeed;
@@ -150,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
     Double distToFinish;
 
     int batteryLevel;
+    boolean charging=false;
 
     final String a = "A"; // Finish line data
     final String h = "H"; // Finish Line Data
@@ -184,6 +187,12 @@ public class MainActivity extends AppCompatActivity {
         //Create the ArrayList object here, for use in all the MainActivity
         theMarks = new Marks();
         theCourses = new Courses();
+
+        IntentFilter filter =  new IntentFilter();
+        filter.addAction("android.intent.action.ACTION_POWER_CONNECTED");
+        filter.addAction("android.intent.action.ACTION_POWER_DISCONNECTED");
+        chargeReceiver = new PlugInControlReceiver();
+        registerReceiver(chargeReceiver, filter);
 
         // Create the ArrayList in the constructor, so only done once
         try {
@@ -702,7 +711,11 @@ public class MainActivity extends AppCompatActivity {
         mAccuracyTextView.setText(accuracy);
 
         batteryLevel = getBatteryPercentage();
-        mBatteryLevel.setText(batteryLevel + "%");
+        if (charging) {
+            mBatteryLevel.setText(batteryLevel + "%+");
+        } else {
+            mBatteryLevel.setText(batteryLevel + "%");
+        }
 
         if (batteryLevel > 20) {
             mBatteryWarning.setVisibility(View.GONE);
@@ -865,6 +878,21 @@ public class MainActivity extends AppCompatActivity {
        }
     }
 
+//Detect if device is charging
+    public class PlugInControlReceiver extends BroadcastReceiver {
+        String action;
+        public void onReceive(Context context, Intent intent) {
+            action = intent.getAction();
+
+            if (action.equals(Intent.ACTION_POWER_CONNECTED)) {
+                // Do something when power connected
+                charging = true;
+            } else if (action.equals(Intent.ACTION_POWER_DISCONNECTED)) {
+                // Do something when power disconnected
+                charging = false;
+            }
+        }
+    }
 
     private void copyFile(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[1024];
